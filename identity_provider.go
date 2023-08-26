@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -765,7 +766,7 @@ func (DefaultAssertionMaker) MakeAssertion(req *IdpAuthnRequest, session *Sessio
 	if session.NameIDFormat != "" {
 		nameIDFormat = session.NameIDFormat
 	}
-
+	remoteIP, _, _ := net.SplitHostPort(req.HTTPRequest.RemoteAddr)
 	req.Assertion = &Assertion{
 		ID:           fmt.Sprintf("id-%x", randomBytes(20)),
 		IssueInstant: TimeNow(),
@@ -785,7 +786,7 @@ func (DefaultAssertionMaker) MakeAssertion(req *IdpAuthnRequest, session *Sessio
 				{
 					Method: "urn:oasis:names:tc:SAML:2.0:cm:bearer",
 					SubjectConfirmationData: &SubjectConfirmationData{
-						Address:      req.HTTPRequest.RemoteAddr,
+						Address:      remoteIP,
 						InResponseTo: req.Request.ID,
 						NotOnOrAfter: req.Now.Add(MaxIssueDelay),
 						Recipient:    req.ACSEndpoint.Location,
@@ -807,7 +808,7 @@ func (DefaultAssertionMaker) MakeAssertion(req *IdpAuthnRequest, session *Sessio
 				AuthnInstant: session.CreateTime,
 				SessionIndex: session.Index,
 				SubjectLocality: &SubjectLocality{
-					Address: req.HTTPRequest.RemoteAddr,
+					Address: remoteIP,
 				},
 				AuthnContext: AuthnContext{
 					AuthnContextClassRef: &AuthnContextClassRef{
