@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/xml"
 	"fmt"
+	"html/template"
 	"io"
 	"io/ioutil"
 	"net"
@@ -16,7 +17,6 @@ import (
 	"os"
 	"regexp"
 	"strconv"
-	"text/template"
 	"time"
 
 	"github.com/beevik/etree"
